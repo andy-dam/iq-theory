@@ -10,25 +10,22 @@ import { useState } from "react";
 import Signup from "./components/Signup.tsx";
 const App: React.FC = () => {
   const [user] = useAuthState(auth);
-  const [clef, setClef] = useState<string>("treble");
-  
-{/* <Navigate to="/home" /> */}
+  const [clef, setClef] = useState<string>("");
 
   return (
     <>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<Homepage setClef={setClef} />} />
         <Route
-          path="/home"
-          element={user ? (
-            <Homepage clef={clef} setClef={setClef} />
-          ) : (
-            <Navigate to="/login" />
-          )}
+          path="/login"
+          element={user ? <Navigate to="/home" /> : <Login />}
         />
-        <Route path="/login" element={user ? <Navigate to="/home" /> : <Login />} />
-        <Route path="/signup" element={user ? <Navigate to="/home" /> : <Signup />} />
-        <Route path="/game" element={user ? <Game clef={clef} setClef={setClef}/> : <Navigate to="/login" />} />
+        <Route
+          path="/signup"
+          element={user ? <Navigate to="/home" /> : <Signup />}
+        />
+        <Route path="/game" element={<Game clef={clef} setClef={setClef} />} />
         <Route path="*" element={<div>404</div>} />
       </Routes>
     </>
