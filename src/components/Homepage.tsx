@@ -65,6 +65,24 @@ const Homepage: React.FC<Props> = ({ setClef }) => {
             >
               go to bass
             </Link>
+            <Link
+              to="/game"
+              className="flex rounded-full bg-blue-400 max-w-28 justify-center items-center"
+              onClick={() => {
+                setClef("alto");
+              }}
+            >
+              go to alto
+            </Link>
+            <Link
+              to="/game"
+              className="flex rounded-full bg-blue-400 max-w-28 justify-center items-center"
+              onClick={() => {
+                setClef("tenor");
+              }}
+            >
+              go to tenor
+            </Link>
           </div>
           <Link to="/">go back</Link>
           <button

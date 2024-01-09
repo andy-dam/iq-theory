@@ -10,7 +10,7 @@ import { useState } from "react";
 import Signup from "./components/Signup.tsx";
 const App: React.FC = () => {
   const [user] = useAuthState(auth);
-  const [clef, setClef] = useState<string>("");
+  const [clef, setClef] = useState<string>("treble");
 
   return (
     <>

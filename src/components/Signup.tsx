@@ -49,7 +49,7 @@ const Signup = () => {
   useEffect(() => {
     if (authCheckCompleted) {
       if (!user) {
-        navigate("/login");
+        navigate("/signup");
       }
     }
   }, [authCheckCompleted, user]);
