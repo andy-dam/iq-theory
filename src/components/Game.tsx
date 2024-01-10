@@ -1,12 +1,10 @@
 import { User, onAuthStateChanged, getAuth } from "firebase/auth";
-import { set } from "firebase/database";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
   // props
   clef: string;
-  setClef: React.Dispatch<React.SetStateAction<string>>;
 }
 
 type Note = {
@@ -21,14 +19,14 @@ type Question = {
   answers: string[];
 };
 
-const Game: React.FC<Props> = ({ clef, setClef }) => {
+const Game: React.FC<Props> = ({ clef }) => {
   //TODO change back to 3
   const [data, setData] = useState<Note[]>([]);
   const [countdown, setCountdown] = useState<number>(3);
+  const [timer, setTimer] = useState<number>(10);
   const [user, setUser] = useState<User | null>(null);
   const [authCheckCompleted, setAuthCheckCompleted] = useState(false);
   const [question, setQuestion] = useState<Question | null>(null);
-  const [userAnswer, setUserAnswer] = useState<string>("");
   const [score, setScore] = useState<number>(0);
   const navigate = useNavigate();
 
@@ -91,17 +89,6 @@ const Game: React.FC<Props> = ({ clef, setClef }) => {
     return () => unsubscribe();
   }, []);
 
-  //handle user answer
-  const handleAnswer = (e: React.SyntheticEvent<HTMLButtonElement>) => {
-    const answer = e.currentTarget.value;
-    setUserAnswer(answer);
-    if (answer === question?.correctAnswer) {
-      setScore((prev) => prev + 1);
-      
-    }
-    fetchQuestion();
-  };
-
   useEffect(() => {
     if (!clef) {
       navigate("/home");
@@ -113,31 +100,62 @@ const Game: React.FC<Props> = ({ clef, setClef }) => {
     }
   }, [authCheckCompleted, user]);
 
-  // This useEffect is a countdown timer
+  // This useEffect is a countdown timer and game timer
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+    if (countdown > 0) {
+      const interval = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+      };
+    } else {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [countdown]);
+
+  //handle user answer
+  const handleAnswer = (e: React.SyntheticEvent<HTMLButtonElement>) => {
+    const answer = e.currentTarget.value;
+    if (answer === question?.correctAnswer) {
+      setScore((prev) => prev + 1);
+    }
+    fetchQuestion();
+  };
 
   //refactor these stuff to be components
   return (
     <>
       {countdown > 0 ? (
-        <div>
+        <div className="h-screen flex items-center justify-center">
           <h1>Quiz will start in {countdown} seconds...</h1>
         </div>
+      ) : timer < 0 ? (
+        <div> done</div>
       ) : (
-        <div>
-          <div>{score}</div>
-          <div><img src={`src/assets/notes/${clef}//${question?.img}.png`}/></div>
-          <ul>
+        <div className="flex flex-col items-center justify-center my-40">
+          <h1 className="text-xl">Score: {score}</h1>
+          <h2>Countdown: {countdown}</h2>
+          <h2>Timer: {timer}</h2>
+          <div>
+            <img
+              className="w-52 rounded-lg border border-black"
+              src={`src/assets/notes/${clef}/${question?.img}.png`}
+            />
+          </div>
+          <ul className="flex flex-col my-4">
             {question?.answers.map((answer) => (
-              <li key={`${answer}`}>
-                <button className="border w-16 bg-red-100" value={answer} onClick={e => handleAnswer(e)}>
+              <li key={`${answer}`} className="px-4">
+                <button
+                  className="border w-24 border-black bg-blue-100 my-2 rounded-lg"
+                  value={answer}
+                  onClick={(e) => handleAnswer(e)}
+                >
                   {answer}
                 </button>
               </li>

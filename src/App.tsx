@@ -25,7 +25,7 @@ const App: React.FC = () => {
           path="/signup"
           element={user ? <Navigate to="/home" /> : <Signup />}
         />
-        <Route path="/game" element={<Game clef={clef} setClef={setClef} />} />
+        <Route path="/game" element={<Game clef={clef}  />} />
         <Route path="*" element={<div>404</div>} />
       </Routes>
     </>
