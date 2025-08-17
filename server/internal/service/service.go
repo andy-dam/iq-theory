@@ -10,3 +10,11 @@ package service
 // - AuthService (authentication/authorization logic)
 
 // Keep services focused on business rules, not HTTP or database details
+
+type UserService struct {
+	// dependencies (e.g. repositories) go here
+}
+
+type QuizService struct {
+	// dependencies (e.g. repositories) go here
+}

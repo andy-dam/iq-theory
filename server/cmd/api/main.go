@@ -7,6 +7,15 @@ package main
 // - Set up routing
 // - Start the HTTP server
 
+import (
+	"github.com/gorilla/mux"
+	"net/http"
+)
+
 func main() {
-	// Your implementation here
+	r := mux.NewRouter()
+	
+	
+	http.Handle("/", r)
+	http.ListenAndServe(":8080", nil)
 }

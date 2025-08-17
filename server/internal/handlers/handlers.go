@@ -9,3 +9,12 @@ package handlers
 // - UserHandler (CRUD operations for users)
 // - QuizHandler (CRUD operations for quizzes)
 // - etc.
+
+import (
+	"github.com/andy-dam/iq-theory/server/internal/service"
+)
+
+type Handler struct {
+	UserService service.UserService
+	QuizService service.QuizService
+}
