@@ -1,13 +1,31 @@
 package repository
 
-// TODO: Implement your data access layer
-// This is where you interact with your database
-// Define interfaces for testability
+import (
+	"github.com/andy-dam/iq-theory/server/pkg/database"
+)
 
-// Examples:
-// - UserRepository interface and implementation
-// - QuizRepository interface and implementation
-// - etc.
+// Repositories aggregates all repository implementations
+type Repositories struct {
+	User            UserRepository
+	Friendship      FriendshipRepository
+	Group           GroupRepository
+	GroupMembership GroupMembershipRepository
+	Quiz            QuizRepository
+	QuizSession     QuizSessionRepository
+	QuizAnswer      QuizAnswerRepository
+	Leaderboard     LeaderboardRepository
+}
 
-// Use dependency injection to make testing easier
-
+// NewRepositories creates a new instance of all repositories
+func NewRepositories(db *database.DB) *Repositories {
+	return &Repositories{
+		User:            NewUserRepository(db),
+		Friendship:      NewFriendshipRepository(db),
+		Group:           NewGroupRepository(db),
+		GroupMembership: NewGroupMembershipRepository(db),
+		Quiz:            NewQuizRepository(db),
+		QuizSession:     NewQuizSessionRepository(db),
+		QuizAnswer:      NewQuizAnswerRepository(db),
+		Leaderboard:     NewLeaderboardRepository(db),
+	}
+}

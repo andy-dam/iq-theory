@@ -1,20 +1,25 @@
 package service
 
-// TODO: Implement your business logic layer
-// This is where your core application logic lives
-// Services coordinate between repositories and handlers
+import (
+	"github.com/andy-dam/iq-theory/server/internal/repository"
+)
 
-// Examples:
-// - UserService (user management logic)
-// - QuizService (quiz logic, scoring, etc.)
-// - AuthService (authentication/authorization logic)
-
-// Keep services focused on business rules, not HTTP or database details
-
-type UserService struct {
-	// dependencies (e.g. repositories) go here
+// Services aggregates all service implementations
+type Services struct {
+	User        UserService
+	Friendship  FriendshipService
+	Group       GroupService
+	Quiz        QuizService
+	Leaderboard LeaderboardService
 }
 
-type QuizService struct {
-	// dependencies (e.g. repositories) go here
+// NewServices creates a new instance of all services
+func NewServices(repos *repository.Repositories) *Services {
+	return &Services{
+		User:        NewUserService(repos),
+		Friendship:  NewFriendshipService(repos),
+		Group:       NewGroupService(repos),
+		Quiz:        NewQuizService(repos),
+		Leaderboard: NewLeaderboardService(repos),
+	}
 }
