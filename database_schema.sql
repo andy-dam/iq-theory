@@ -84,13 +84,16 @@ CREATE TABLE quiz_sessions (
     duration_seconds INTEGER NOT NULL,
     max_ledger_lines INTEGER NOT NULL,
     
+    -- Quiz results (calculated dynamically for endless quizzes)
     score INTEGER NOT NULL DEFAULT 0,
-    total_questions INTEGER NOT NULL,
+    total_questions INTEGER NOT NULL DEFAULT 0,        -- Updated as questions are answered
     correct_answers INTEGER NOT NULL DEFAULT 0,
-    time_taken_seconds INTEGER NOT NULL,
+    time_taken_seconds INTEGER,                        -- NULL until completed (for endless quizzes)
     started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     completed_at TIMESTAMP WITH TIME ZONE,
     status VARCHAR(20) DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'abandoned')),
+    
+    -- Accuracy calculated from actual questions answered
     accuracy_percentage DECIMAL(5,2) GENERATED ALWAYS AS (
         CASE 
             WHEN total_questions > 0 THEN (correct_answers::DECIMAL / total_questions) * 100
@@ -109,8 +112,7 @@ CREATE TABLE quiz_answers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     quiz_session_id UUID NOT NULL REFERENCES quiz_sessions(id) ON DELETE CASCADE,
     question_number INTEGER NOT NULL,
-    note_image VARCHAR(100) NOT NULL, -- e.g., "A4.png"
-    correct_note VARCHAR(10) NOT NULL, -- e.g., "A4"
+    correct_note VARCHAR(10) NOT NULL, -- e.g., "A4" (sufficient to identify the question)
     user_answer VARCHAR(10), -- User's guess
     is_correct BOOLEAN NOT NULL,
     time_taken_ms INTEGER NOT NULL,
@@ -121,21 +123,21 @@ CREATE TABLE quiz_answers (
 -- View to dynamically generate all possible quiz configurations
 CREATE VIEW available_quiz_configurations AS
 SELECT 
-    CONCAT(ct.display_name, ' - ', do.display_name, ' - ', llo.display_name) as configuration_name,
+    CONCAT(ct.display_name, ' - ', dur.display_name, ' - ', llo.display_name) as configuration_name,
     ct.name as clef,
     ct.display_name as clef_display,
-    do.duration_seconds,
-    do.display_name as duration_display,
+    dur.duration_seconds,
+    dur.display_name as duration_display,
     llo.max_lines as max_ledger_lines,
     llo.display_name as ledger_display,
-    ct.is_active AND do.is_active AND llo.is_active as is_available
+    ct.is_active AND dur.is_active AND llo.is_active as is_available
 FROM clef_types ct
-CROSS JOIN duration_options do
+CROSS JOIN duration_options dur
 CROSS JOIN ledger_line_options llo
 WHERE ct.is_active = true 
-  AND do.is_active = true 
+  AND dur.is_active = true 
   AND llo.is_active = true
-ORDER BY ct.name, do.duration_seconds, llo.max_lines;
+ORDER BY ct.name, dur.duration_seconds, llo.max_lines;
 
 -- Leaderboards (materialized view for performance)
 CREATE MATERIALIZED VIEW leaderboards AS
@@ -213,8 +215,8 @@ BEGIN
     SELECT ct.display_name INTO clef_display 
     FROM clef_types ct WHERE ct.name = p_clef;
     
-    SELECT do.display_name INTO duration_display 
-    FROM duration_options do WHERE do.duration_seconds = p_duration_seconds;
+    SELECT dur.display_name INTO duration_display 
+    FROM duration_options dur WHERE dur.duration_seconds = p_duration_seconds;
     
     SELECT llo.display_name INTO ledger_display 
     FROM ledger_line_options llo WHERE llo.max_lines = p_max_ledger_lines;

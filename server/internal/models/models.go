@@ -98,10 +98,11 @@ type QuizSession struct {
 	DurationSeconds int    `json:"duration_seconds" db:"duration_seconds"`
 	MaxLedgerLines  int    `json:"max_ledger_lines" db:"max_ledger_lines"`
 
+	// Results (updated dynamically for endless quizzes)
 	Score              int        `json:"score" db:"score"`
 	TotalQuestions     int        `json:"total_questions" db:"total_questions"`
 	CorrectAnswers     int        `json:"correct_answers" db:"correct_answers"`
-	TimeTakenSeconds   int        `json:"time_taken_seconds" db:"time_taken_seconds"`
+	TimeTakenSeconds   *int       `json:"time_taken_seconds" db:"time_taken_seconds"` // Nullable until completed
 	StartedAt          time.Time  `json:"started_at" db:"started_at"`
 	CompletedAt        *time.Time `json:"completed_at" db:"completed_at"`
 	Status             string     `json:"status" db:"status"` // in_progress, completed, abandoned
@@ -113,7 +114,6 @@ type QuizAnswer struct {
 	ID             uuid.UUID `json:"id" db:"id"`
 	QuizSessionID  uuid.UUID `json:"quiz_session_id" db:"quiz_session_id"`
 	QuestionNumber int       `json:"question_number" db:"question_number"`
-	NoteImage      string    `json:"note_image" db:"note_image"`     // e.g., "A4.png"
 	CorrectNote    string    `json:"correct_note" db:"correct_note"` // e.g., "A4"
 	UserAnswer     *string   `json:"user_answer" db:"user_answer"`
 	IsCorrect      bool      `json:"is_correct" db:"is_correct"`
@@ -174,11 +174,34 @@ type StartQuizRequest struct {
 	MaxLedgerLines  int    `json:"max_ledger_lines" validate:"required,min=0,max=3"`
 }
 
-// SubmitAnswerRequest represents the request to submit an answer
+// SubmitAnswerRequest represents the request to submit a single answer (legacy - use batch instead)
 type SubmitAnswerRequest struct {
 	QuestionNumber int    `json:"question_number" validate:"required,min=1"`
 	UserAnswer     string `json:"user_answer" validate:"required"`
 	TimeTakenMs    int    `json:"time_taken_ms" validate:"required,min=0"`
+}
+
+// BatchAnswerSubmission represents multiple answers submitted together
+type BatchAnswerSubmission struct {
+	SessionID uuid.UUID        `json:"session_id" validate:"required"`
+	Answers   []QuizAnswerData `json:"answers" validate:"required,min=1,max=50"`
+}
+
+// QuizAnswerData represents a single answer in a batch submission
+type QuizAnswerData struct {
+	QuestionNumber int    `json:"question_number" validate:"required,min=1"`
+	CorrectNote    string `json:"correct_note" validate:"required"`
+	UserAnswer     string `json:"user_answer" validate:"required"`
+	TimeTakenMs    int    `json:"time_taken_ms" validate:"required,min=0"`
+	AnsweredAt     string `json:"answered_at" validate:"required"` // ISO timestamp
+}
+
+// CompleteQuizRequest represents the final quiz completion
+type CompleteQuizRequest struct {
+	SessionID        uuid.UUID        `json:"session_id" validate:"required"`
+	FinalAnswers     []QuizAnswerData `json:"final_answers"` // Any remaining answers
+	ActualTimeUsed   int              `json:"actual_time_used" validate:"required,min=1"`
+	CompletionReason string           `json:"completion_reason" validate:"required,oneof=time_expired user_quit"`
 }
 
 // LeaderboardRequest represents the request for leaderboard data
