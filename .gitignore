@@ -1,0 +1,68 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Go workspace file
+go.work
+
+# Build output directories
+bin/
+build/
+dist/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Main executables
+main
+main.exe
+api
+api.exe
+iq-theory-api
+iq-theory-api.exe
+
+# Client dependencies
+client/node_modules/
+client/.next/
+client/dist/
+client/build/
+
+# Firebase cache
+client/.firebase/
+client/firebase-debug.log
